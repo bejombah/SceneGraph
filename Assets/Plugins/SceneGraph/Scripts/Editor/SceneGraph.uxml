@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Plugins/SceneGraph/Scripts/Editor/SceneGraph.uss?fileID=7433441132597879392&amp;guid=4ad12c0b854aa014083846ffc7df1506&amp;type=3#SceneGraph" />
+    <SceneGraph.Editor.SceneGraphView focusable="true" style="flex-direction: column; flex-grow: 1;" />
+</ui:UXML>

@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Plugins/SceneGraph/Scripts/Editor/NodeView.uss?fileID=7433441132597879392&amp;guid=d3183eba99b1cf6409005f9945481670&amp;type=3#NodeView" />
+    <ui:VisualElement name="node-border" style="padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; background-color: rgba(72, 72, 72, 0.94); position: relative; left: auto; top: 0; flex-direction: column;">
+        <ui:VisualElement name="title" picking-mode="Ignore" usage-hints="MaskContainer" style="flex-direction: row; position: relative;">
+            <ui:Label name="title-label" text="SceneInstance" class="unity-text-element unity-label" style="flex-direction: row;" />
+            <ui:VisualElement name="title-button-container" style="flex-direction: row; justify-content: flex-end;">
+                <ui:VisualElement name="collapse-button">
+                    <ui:VisualElement name="icon" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="selection-border" focusable="false" style="position: relative; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0;" />
+</ui:UXML>
