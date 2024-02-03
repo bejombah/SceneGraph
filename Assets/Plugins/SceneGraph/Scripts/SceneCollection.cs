@@ -8,7 +8,8 @@ namespace SceneGraph
     public class SceneCollection : ScriptableObject
     {
         [Header("Prefabs")]
-        [SerializeField] GameObject doorManagerPrefab; public GameObject DoorManagerPrefab => doorManagerPrefab;
+        [SerializeField] GameObject portalManagerPrefab; public GameObject PortalManagerPrefab => portalManagerPrefab;
+        [SerializeField] GameObject portalPrefab; public GameObject PortalPrefab => portalPrefab;
         [SerializeField] GameObject gridPrefab; public GameObject GridPrefab => gridPrefab;
         [SerializeField] GameObject camSystemPrefab; public GameObject CamSystemPrefab => camSystemPrefab;
         [SerializeField] SceneAsset coreScene; public SceneAsset CoreScene => coreScene;
