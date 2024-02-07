@@ -16,9 +16,13 @@ namespace SceneGraph.Editor
     {
         public new class UxmlFactory : UxmlFactory<SceneGraphView, GraphView.UxmlTraits> { }
         [SerializeField] SceneCollection sceneCollection; public SceneCollection SceneCollection => sceneCollection;
+        GraphView graphView;
 
         public SceneGraphView()
         {
+            // GraphView
+            graphView = this;
+
             // create toolbar
             Toolbar toolbar = new Toolbar();
             this.Add(toolbar);
@@ -185,16 +189,32 @@ namespace SceneGraph.Editor
             }
         }
 
-        public void CreateNewNode(SceneInstance sceneInstance)
+        public void CreateNewNode(SceneInstance sceneInstance, bool isNew=false)
         {
-            NodeView nodeView = new NodeView(sceneInstance);
-            nodeView.SetPosition(sceneInstance.position);
-            AddElement(nodeView);
+            if(isNew)
+            {
+                NodeView nodeView = new NodeView(sceneInstance);
+                Vector2 center = this.contentViewContainer.WorldToLocal(this.layout.center);
+                float width = 1.0f; // Replace with your desired width
+                float height = 1.0f; // Replace with your desired height
+
+                Rect centerRect = new Rect(center.x - width / 2.0f, center.y - height / 2.0f, width, height);
+                nodeView.SetPosition(centerRect);
+                AddElement(nodeView);
+            }
+            else
+            {
+                NodeView nodeView = new NodeView(sceneInstance);
+                nodeView.SetPosition(sceneInstance.position);
+                AddElement(nodeView);
+            }            
         }
 
         public void OnViewTransformChanged(GraphView view)
         {
-            
+            // save zoom and positions
+            sceneCollection.position = view.contentViewContainer.transform.position;
+            sceneCollection.zoom = view.contentViewContainer.transform.scale;
         }
 
         PortalData FindPortal(string uniqueID)
@@ -336,7 +356,7 @@ namespace SceneGraph.Editor
             EditorBuildSettings.scenes = newBuildSettingsScenes.ToArray();
 
             // create scene instance
-            SceneInstance sceneInstance = new SceneInstance();
+            SceneInstance sceneInstance = ScriptableObject.CreateInstance<SceneInstance>();
             sceneInstance.name = sceneName;
             sceneInstance.MapName = sceneName;
             sceneInstance.sceneA = sceneAsset;
@@ -345,13 +365,13 @@ namespace SceneGraph.Editor
             AssetDatabase.SaveAssets();
 
             // create node view
-            CreateNewNode(sceneInstance);
+            CreateNewNode(sceneInstance, true);
 
             // instantiate portal manager prefab
             GameObject portalManager = sceneCollection.PortalManagerPrefab;
             GameObject portalManagerInstance = PrefabUtility.InstantiatePrefab(portalManager) as GameObject;
             portalManagerInstance.name = "PortalManager";
-            // portalManager.GetComponent<PortalManager>().sceneInstance = sceneInstance;
+            portalManager.GetComponent<PortalManager>().SceneInstance = sceneInstance;
 
             // instantiate grid prefab
             GameObject grid = sceneCollection.GridPrefab;
@@ -364,6 +384,7 @@ namespace SceneGraph.Editor
             camSystemInstance.name = "CamSystem";
 
             // save scene collection
+            EditorSceneManager.SaveScene(scene);
             EditorUtility.SetDirty(sceneCollection);
             AssetDatabase.SaveAssets();
         }

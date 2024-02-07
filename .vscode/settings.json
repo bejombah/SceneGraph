@@ -56,5 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "SceneGraph.sln"
+    "dotnet.defaultSolution": "SceneGraph.sln",
+    "nuxt.isNuxtApp": false
 }
