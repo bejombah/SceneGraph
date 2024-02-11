@@ -8,6 +8,7 @@ using UnityEditor.SceneManagement;
 using System.IO;
 using UnityEngine.Tilemaps;
 using System.Linq.Expressions;
+using System;
 
 namespace SceneGraph.Editor
 {
@@ -119,25 +120,26 @@ namespace SceneGraph.Editor
                 CreatePort(port);
             }
         }
-        void CreatePort(PortalData portal)
+        void CreatePort(PortalData portalData)
         {
             // portal data
-            UnityEngine.Vector2 position = portal.position;
-            PortalData _portal = portal;
+            UnityEngine.Vector2 position = portalData.position;
+            PortalData _portal = portalData;
 
             // UI
-            Direction direction = portal.Direction;
-            Orientation orientation = portal.Orientation;
+            Direction direction = portalData.Direction;
+            Orientation orientation = portalData.Orientation;
 
             // create port
-            Port port = InstantiatePort(orientation, direction, Port.Capacity.Single, typeof(PortalData));
-            Label text = new Label(portal.Name);
+            // Port port = Port.Create<Edge>(orientation, direction, Port.Capacity.Single, typeof(PortalData));
+            Port port = InstantiatePort(orientation, direction, Port.Capacity.Single, typeof(Edge));
+            Label text = new Label(portalData.Name);
             text.style.color = Color.white;
 
             // setting up the port orientation and direction (depends on the port position in the node view)
             if(orientation == Orientation.Horizontal)
             {
-                port.portName = portal.Name;
+                port.portName = portalData.Name;
                 if(direction == Direction.Input)
                 {
                     port.style.flexDirection = FlexDirection.Row;
@@ -170,12 +172,13 @@ namespace SceneGraph.Editor
             }
 
             // insert data into port
-            port.viewDataKey = _portal.GUID;
-            port.name = _portal.GUID;
+            port.viewDataKey = portalData.UniqueID;
+            port.name = portalData.GUID;
             port.style.position = Position.Absolute;
             port.style.left = position.x;
             port.style.top = position.y;
             port.style.backgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.4f);
+
             port.contentContainer.AddManipulator(new ContextualMenuManipulator((ContextualMenuPopulateEvent evt) =>
             {
                 if(evt.menu != null)
@@ -240,12 +243,12 @@ namespace SceneGraph.Editor
                     currentPortDragged.style.left = newPortPosition.x;
                     currentPortDragged.style.top = newPortPosition.y;
 
-                    // get the door
-                    foreach(PortalData portal in sceneInstance.Portals)
+                    // get the portal
+                    foreach(PortalData portalData in sceneInstance.Portals)
                     {
-                        if(portal.UniqueID == currentPortDragged.viewDataKey)
+                        if(portalData.UniqueID == currentPortDragged.viewDataKey)
                         {
-                            _portal = portal;
+                            _portal = portalData;
                             break;
                         }
                     }
@@ -299,10 +302,10 @@ namespace SceneGraph.Editor
             // remove port
             grid.Remove(port);
 
-            // modify the door manager from the scene
+            // modify the portal manager from the scene
             PortalManager portalManager = GameObject.FindObjectOfType<PortalManager>();
 
-            // remove door from door manager
+            // remove portal from portal manager
             foreach(GameObject go in portalManager.Portals)
             {
                 if(go.GetComponent<Portal>().PortalData.UniqueID == port.viewDataKey)
@@ -317,12 +320,12 @@ namespace SceneGraph.Editor
                 }
             }
 
-            // remove door
-            foreach(PortalData portal in sceneInstance.Portals)
+            // remove portal
+            foreach(PortalData portalData in sceneInstance.Portals)
             {
-                if(portal.position.x == port.style.left.value.value && portal.position.y == port.style.top.value.value)
+                if(portalData.position.x == port.style.left.value.value && portalData.position.y == port.style.top.value.value)
                 {
-                    sceneInstance.Portals.Remove(portal);
+                    sceneInstance.Portals.Remove(portalData);
 
                     // save scene
                     EditorSceneManager.SaveScene(EditorSceneManager.GetSceneAt(1));
@@ -332,10 +335,15 @@ namespace SceneGraph.Editor
             }
         }
 
-        void GoToScene()
+        public void GoToScene(SceneGraphView view = null)
         {
             // get scene instance's parent
             SceneGraphView sceneGraphView = this.GetFirstAncestorOfType<SceneGraphView>();
+
+            if(view != null)
+            {
+                sceneGraphView = view;
+            }            
             
             // get core scene asset
             SceneAsset core = sceneGraphView.SceneCollection.CoreScene;
@@ -380,7 +388,7 @@ namespace SceneGraph.Editor
             sceneInstance.preview = null;
 
             // add the screenshot to the scene instance
-            sceneInstance.preview = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Plugins/SceneGraph/Scenes/Maps/Screenshot/");
+            sceneInstance.preview = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Plugins/SceneGraph/Scenes/Maps/Screenshot/"+ sceneInstance.sceneA.name + ".png");
 
             // save the scene instance
             EditorUtility.SetDirty(sceneInstance);
@@ -401,9 +409,10 @@ namespace SceneGraph.Editor
             // create a temporary cam
             Camera tempCamera = new GameObject("TempCamera").AddComponent<Camera>();
             tempCamera.orthographic = true;
-
+            
             // position the camera to capture the entire scene
             Bounds bounds = CalculateSceneBounds(activeScene);
+            tempCamera.transform.position = new UnityEngine.Vector3(bounds.center.x, bounds.center.y, -10);
 
             // get portal manager
             PortalManager portalManager = GameObject.FindObjectOfType<PortalManager>();
@@ -508,7 +517,7 @@ namespace SceneGraph.Editor
             return bounds;
         }
 
-        void PopupNewPort(UnityEngine.Vector2 position, Direction direction, Orientation orientation)
+        void PopupNewPort(Vector2 position, Direction direction, Orientation orientation)
         {
             // check if there is already a popup window
             if(this.GetFirstAncestorOfType<SceneGraphView>().Children().OfType<UnityEngine.UIElements.PopupWindow>().ToList().Count > 0)
@@ -565,7 +574,7 @@ namespace SceneGraph.Editor
                 }
                 else
                 {
-                    // check if this is interact door
+                    // check if this is interact portal
                     AddNewPort(position, direction, orientation, textField.text, popupWindow, toggleInteract.value);
                     // AddNewPort(position, direction, orientation, textField.text, popupWindow);
                 }
@@ -590,12 +599,15 @@ namespace SceneGraph.Editor
 
             // data
             PortalData portalData = new PortalData();
-            portalData.Name = name;
+            portalData.position = position;
             portalData.Direction = direction;
             portalData.Orientation = orientation;
             portalData.IsInteraction = isInteraction;
-            portalData.position = position;
+            portalData.Name = name;
             sceneInstance.Portals.Add(portalData);
+
+            // set dirty scene instance
+            EditorUtility.SetDirty(sceneInstance);
 
             // modify the portal manager from the scene
             PortalManager portalManager = GameObject.FindObjectOfType<PortalManager>();
@@ -609,7 +621,7 @@ namespace SceneGraph.Editor
             // get size of image
             UnityEngine.Vector3 imgSize = grid.layout.size;
 
-            // get the door position
+            // get the portal position
             UnityEngine.Vector3 imgPortal = position;
 
             // scene center
@@ -618,27 +630,27 @@ namespace SceneGraph.Editor
             // scene size
             UnityEngine.Vector3 sceneSize = bounds.size;
 
-            // set the door position relative to the scene center
+            // set the portal position relative to the scene center
             // Define the offset
             Vector3 offset = new Vector3(1.5f, -1f, 0);
 
             // Calculate the position and add the offset
-            portalData.position = new UnityEngine.Vector3((imgPortal.x - imgCenter.x) * (sceneSize.x / imgSize.x), -((imgPortal.y - imgCenter.y) * (sceneSize.y / imgSize.y)), 0) + sceneCenter + offset;
+            portalData.PortalPosition = new UnityEngine.Vector3((imgPortal.x - imgCenter.x) * (sceneSize.x / imgSize.x), -((imgPortal.y - imgCenter.y) * (sceneSize.y / imgSize.y)), 0) + sceneCenter + offset;
 
-            // instantiate game object door (parent is the door manager)
+            // instantiate game object portal (parent is the portal manager)
             // get scene instance's parent
             SceneGraphView sceneGraphView = this.GetFirstAncestorOfType<SceneGraphView>();
             
             // get core scene asset
             GameObject go = PrefabUtility.InstantiatePrefab(sceneGraphView.SceneCollection.PortalPrefab, portalManager.transform) as GameObject;
 
-            // set door position
-            go.transform.position = portalData.position;
+            // set portal position
+            go.transform.position = portalData.PortalPosition;
 
             // add to the list
             portalManager.Portals.Add(go);
 
-            // set door name
+            // set portal name
             go.name = portalData.UniqueID;
             go.GetComponent<Portal>().PortalData = portalData;
 

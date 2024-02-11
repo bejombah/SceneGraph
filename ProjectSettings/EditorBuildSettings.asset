@@ -10,41 +10,8 @@ EditorBuildSettings:
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
     path: Assets/Plugins/SceneGraph/Scenes/Maps/Map1.unity
-    guid: 9dfebde2b08ebea4d92cbcffbf4647da
+    guid: d926f8ff6ce25d54ba6da1c8fdb6a482
   - enabled: 1
     path: Assets/Plugins/SceneGraph/Scenes/Maps/Map2.unity
-    guid: 46881387384f735439fc02b6dd042dd5
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map3.unity
-    guid: 358068b484b219147896ef3b08d8b920
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map4.unity
-    guid: 9f087840628ad1346b676118aed1d051
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map5.unity
-    guid: 37d420b21b6f3974383d5dc2d39d31ea
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map6.unity
-    guid: cafcdc3d0c6679d4b815a1f9de008b3f
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map7.unity
-    guid: 746624fee663bd247a44c80f30aca2af
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map8.unity
-    guid: 4e3098f9a14fc8d4ebbb6340bcc6cd3f
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map11.unity
-    guid: b1c98a9e576f17c458ac76a9637ac58c
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map12.unity
-    guid: 33700535e93c2b34a8d8b729798d94d8
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map13.unity
-    guid: 6e905109382566747bcb196f4fc38485
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map14.unity
-    guid: 5c563d1dc8e3b2046b07145b1f9981bc
-  - enabled: 1
-    path: Assets/Plugins/SceneGraph/Scenes/Maps/Map15.unity
-    guid: e7fa71a879b49c9418c2ab79a9f61105
+    guid: 21405c589a6796649b08951bfeeb0193
   m_configObjects: {}

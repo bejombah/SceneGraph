@@ -11,8 +11,8 @@ namespace SceneGraph
     {
         public static SceneLoader Instance;
         string currentSceneName;
-        SceneCollection sceneCollection;
-        float HorizontalOffset = 3f;
+        [SerializeField] SceneCollection sceneCollection;
+        [SerializeField] float HorizontalOffset = 3f;
 
         void Awake()
         {
@@ -197,7 +197,7 @@ namespace SceneGraph
             GameObject go = PortalManager.Instance.FindDoor(portalData.GUID);
 
             // get position
-            Vector3 pos = go.GetComponent<PortalData>().position;
+            Vector3 pos = go.GetComponent<Portal>().Position;
 
             // move player
             Player.Instance.transform.position = pos;

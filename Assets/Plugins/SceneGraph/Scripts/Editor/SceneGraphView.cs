@@ -18,6 +18,19 @@ namespace SceneGraph.Editor
         [SerializeField] SceneCollection sceneCollection; public SceneCollection SceneCollection => sceneCollection;
         GraphView graphView;
 
+        public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
+        {
+            List<Port> compatiblePorts = new List<Port>();
+            ports.ForEach((port) =>
+            {
+                if (startPort != port && startPort.node != port.node)
+                {
+                    compatiblePorts.Add(port);
+                }
+            });
+            return compatiblePorts;
+        }
+
         public SceneGraphView()
         {
             // GraphView
@@ -99,7 +112,7 @@ namespace SceneGraph.Editor
         void PopulateConnections(SceneCollection sceneCollection)
         {
             // get scene collection sub assets
-            UnityEngine.Object[] subAssets = AssetDatabase.LoadAllAssetsAtPath("Assets/SceneGraph/Resources/SceneCollection.asset");
+            UnityEngine.Object[] subAssets = AssetDatabase.LoadAllAssetsAtPath("Assets/Plugins/SceneGraph/Resources/SceneCollection.asset");
 
             for (int i = 0; i < subAssets.Length; i++)
             {
@@ -178,7 +191,6 @@ namespace SceneGraph.Editor
             }
 
             return null;
-
         }
 
         internal void PopulateView(SceneCollection sceneCollection)
@@ -200,6 +212,7 @@ namespace SceneGraph.Editor
 
                 Rect centerRect = new Rect(center.x - width / 2.0f, center.y - height / 2.0f, width, height);
                 nodeView.SetPosition(centerRect);
+                nodeView.GoToScene(this);
                 AddElement(nodeView);
             }
             else
@@ -251,32 +264,47 @@ namespace SceneGraph.Editor
 
         GraphViewChange OnGraphViewChanged(GraphViewChange graphViewChange)
         {
+            VisualElement toSendBack = null;
+
             // Check if an edge was added
             if (graphViewChange.edgesToCreate != null)
             {
                 foreach (var edge in graphViewChange.edgesToCreate)
                 {
-                    // guid for door
+                    // guid for portal
                     string guid = Guid.NewGuid().ToString();
                     
                     PortalData portalInput= FindPortal(edge.input.viewDataKey);
-                    SceneInstance doorInputInstance = FindInstance(edge.input.viewDataKey); 
+                    SceneInstance portalInputInstance = FindInstance(edge.input.viewDataKey); 
                     PortalData portalOutput = FindPortal(edge.output.viewDataKey);
-                    SceneInstance doorOutputInstance = FindInstance(edge.output.viewDataKey);
+                    SceneInstance portalOutputInstance = FindInstance(edge.output.viewDataKey);
 
-                    // check if door is null
-                    if(portalInput == null || portalOutput == null || doorInputInstance == null || doorOutputInstance == null)
+                    // check if portal is null
+                    if(portalInput == null || portalOutput == null || portalInputInstance == null || portalOutputInstance == null)
                     {
                         continue;
                     }
 
-                    // set guid on door
+                    // set guid on portal
                     portalInput.GUID = guid;
-                    portalInput.SceneTo = doorOutputInstance.sceneA;
+                    portalInput.SceneTo = portalOutputInstance.sceneA;
                     portalOutput.GUID = guid;
-                    portalOutput.SceneTo = doorInputInstance.sceneA;
+                    portalOutput.SceneTo = portalInputInstance.sceneA;
+
+                    // move to 
+                    for(int i = 0; i < graphView.contentViewContainer.childCount; i++)
+                    {
+                        if(graphView.contentViewContainer.Children().ElementAt(i).childCount > 0)
+                        {
+                            if(graphView.contentViewContainer.Children().ElementAt(i).Children().First().GetClasses().First() == "graphElement")
+                            {
+                                toSendBack = graphView.contentViewContainer.Children().ElementAt(i);
+                            }
+                        }
+                    }
                 }
 
+                toSendBack.SendToBack();
             }
 
             // Check if an edge was removed
@@ -289,7 +317,7 @@ namespace SceneGraph.Editor
                         PortalData portalInput= FindPortal(edge.input.viewDataKey);
                         PortalData portalOutput = FindPortal(edge.output.viewDataKey);
                       
-                        // doorguid nulled
+                        // portalguid nulled
                         portalInput.GUID = "";
                         portalOutput.GUID = "";
                         portalInput.SceneTo = null;
@@ -298,7 +326,7 @@ namespace SceneGraph.Editor
                     } else
                     if(element is NodeView nodeView)
                     {
-                        // remove doors.guid
+                        // remove portals.guid
                         foreach(PortalData portal in nodeView.SceneInstance.Portals)
                         {
                             portal.GUID = "";
@@ -334,6 +362,20 @@ namespace SceneGraph.Editor
                 return;
             }
 
+            if(sceneCollection == null)
+            {
+                Debug.Log("SceneCollection is null");
+                return;
+            } else 
+            {
+                // check the prefabs
+                if(sceneCollection.PortalManagerPrefab == null || sceneCollection.GridPrefab == null || sceneCollection.CamSystemPrefab == null || sceneCollection.CoreScene == null || sceneCollection.PortalPrefab == null)
+                {
+                    Debug.Log("Check the prefabs!");
+                    return;
+                }
+            }
+
             // path
             string path = "Assets/Plugins/SceneGraph/Scenes/Maps/";
 
@@ -364,9 +406,6 @@ namespace SceneGraph.Editor
             AssetDatabase.AddObjectToAsset(sceneInstance, sceneCollection);
             AssetDatabase.SaveAssets();
 
-            // create node view
-            CreateNewNode(sceneInstance, true);
-
             // instantiate portal manager prefab
             GameObject portalManager = sceneCollection.PortalManagerPrefab;
             GameObject portalManagerInstance = PrefabUtility.InstantiatePrefab(portalManager) as GameObject;
@@ -387,6 +426,9 @@ namespace SceneGraph.Editor
             EditorSceneManager.SaveScene(scene);
             EditorUtility.SetDirty(sceneCollection);
             AssetDatabase.SaveAssets();
+
+            // create node view
+            CreateNewNode(sceneInstance, true);
         }
     }
 }
