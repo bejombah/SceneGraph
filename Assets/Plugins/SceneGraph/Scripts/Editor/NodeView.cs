@@ -132,7 +132,17 @@ namespace SceneGraph.Editor
 
             // create port
             // Port port = Port.Create<Edge>(orientation, direction, Port.Capacity.Single, typeof(PortalData));
-            Port port = InstantiatePort(orientation, direction, Port.Capacity.Single, typeof(Edge));
+            Port port;
+
+            if(portalData.IsInteraction)
+            {
+                port = Port.Create<Edge>(orientation, direction, Port.Capacity.Single, typeof(string));
+            }
+            else
+            {
+                port = Port.Create<Edge>(orientation, direction, Port.Capacity.Single, typeof(PortalData));
+            }
+
             Label text = new Label(portalData.Name);
             text.style.color = Color.white;
 
@@ -178,7 +188,6 @@ namespace SceneGraph.Editor
             port.style.left = position.x;
             port.style.top = position.y;
             port.style.backgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.4f);
-
             port.contentContainer.AddManipulator(new ContextualMenuManipulator((ContextualMenuPopulateEvent evt) =>
             {
                 if(evt.menu != null)
@@ -199,7 +208,14 @@ namespace SceneGraph.Editor
             dragHandler.style.top = 0;
             dragHandler.style.width = orientation == Orientation.Horizontal ? 35 : new Length(100, LengthUnit.Percent);
             dragHandler.style.height = orientation == Orientation.Horizontal ? new Length(100, LengthUnit.Percent) : 35;
-            dragHandler.style.backgroundColor = new Color(0.1f, 1f, 0.1f, 1f);
+            if(portalData.IsInteraction)
+            {
+                dragHandler.style.backgroundColor = new Color(1f, 1f, 0f, 1f);
+            }
+            else
+            {
+                dragHandler.style.backgroundColor = new Color(1f, 1f, 1f, 1f);
+            }
             port.contentContainer.Add(dragHandler);
 
             grid.Add(port);
@@ -646,6 +662,22 @@ namespace SceneGraph.Editor
 
             // set portal position
             go.transform.position = portalData.PortalPosition;
+
+            // set the portal collider size
+            if(!portalData.IsInteraction)
+            {
+                if(portalData.Orientation == Orientation.Horizontal)
+                {
+                    go.GetComponent<BoxCollider2D>().size = new UnityEngine.Vector2(1f, 7f);
+                }
+                else
+                {
+                    go.GetComponent<BoxCollider2D>().size = new UnityEngine.Vector2(7f, 1f);
+                }
+            } else 
+            {
+                go.GetComponent<BoxCollider2D>().size = new UnityEngine.Vector2(2f, 2f);
+            }
 
             // add to the list
             portalManager.Portals.Add(go);

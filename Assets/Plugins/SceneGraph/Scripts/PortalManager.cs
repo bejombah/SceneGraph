@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SceneGraph
 {
-    // [ExecuteInEditMode]
+    [ExecuteInEditMode]
     public class PortalManager : MonoBehaviour
     {
         public static PortalManager Instance { get; private set; }
@@ -29,7 +29,7 @@ namespace SceneGraph
                 foreach (Transform child in transform)
                 {
                     portals.Add(child.gameObject);
-                    child.gameObject.GetComponent<Portal>().PortalData.GUID = sceneInstance.Portals?.Find(x => x.UniqueID == child.gameObject.GetComponent<Portal>()?.PortalData.UniqueID).GUID;
+                    child.GetComponent<Portal>().PortalData.GUID = sceneInstance.Portals.Find(x => x.UniqueID == child.GetComponent<Portal>().PortalData.UniqueID).GUID;
                 }
             }
 

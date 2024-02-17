@@ -29,5 +29,13 @@ namespace SceneGraph
             }
             return null;
         }
+
+        public void SetPrefabs(GameObject portalManagerPrefab, GameObject portalPrefab, GameObject gridPrefab, GameObject camSystemPrefab)
+        {
+            this.portalManagerPrefab = portalManagerPrefab;
+            this.portalPrefab = portalPrefab;
+            this.gridPrefab = gridPrefab;
+            this.camSystemPrefab = camSystemPrefab;
+        }
     }
 }

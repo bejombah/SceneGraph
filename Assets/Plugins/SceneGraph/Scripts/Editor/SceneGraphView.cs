@@ -23,11 +23,12 @@ namespace SceneGraph.Editor
             List<Port> compatiblePorts = new List<Port>();
             ports.ForEach((port) =>
             {
-                if (startPort != port && startPort.node != port.node)
+                if (startPort != port && startPort.node != port.node && startPort.portType == port.portType)
                 {
                     compatiblePorts.Add(port);
                 }
             });
+            
             return compatiblePorts;
         }
 
@@ -285,6 +286,10 @@ namespace SceneGraph.Editor
                         continue;
                     }
 
+                    // set dirty instances
+                    EditorUtility.SetDirty(portalInputInstance);
+                    EditorUtility.SetDirty(portalOutputInstance);
+
                     // set guid on portal
                     portalInput.GUID = guid;
                     portalInput.SceneTo = portalOutputInstance.sceneA;
@@ -351,6 +356,15 @@ namespace SceneGraph.Editor
             // create scriptable object SceneCollection
             sceneCollection = ScriptableObject.CreateInstance<SceneCollection>();
             AssetDatabase.CreateAsset(sceneCollection, "Assets/Plugins/SceneGraph/Resources/SceneCollection.asset");
+
+            // add prefabs
+            sceneCollection.SetPrefabs(
+                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Plugins/SceneGraph/Prefabs/PortalManager.prefab"),
+                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Plugins/SceneGraph/Prefabs/Portal.prefab"),
+                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Plugins/SceneGraph/Prefabs/Grid.prefab"),
+                AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Plugins/SceneGraph/Prefabs/CamSystem.prefab")
+            );
+
             AssetDatabase.SaveAssets();
         }
 
@@ -410,7 +424,7 @@ namespace SceneGraph.Editor
             GameObject portalManager = sceneCollection.PortalManagerPrefab;
             GameObject portalManagerInstance = PrefabUtility.InstantiatePrefab(portalManager) as GameObject;
             portalManagerInstance.name = "PortalManager";
-            portalManager.GetComponent<PortalManager>().SceneInstance = sceneInstance;
+            portalManagerInstance.GetComponent<PortalManager>().SceneInstance = sceneCollection.GetSceneInstance(sceneName);
 
             // instantiate grid prefab
             GameObject grid = sceneCollection.GridPrefab;

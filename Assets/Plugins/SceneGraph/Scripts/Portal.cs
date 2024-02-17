@@ -17,9 +17,16 @@ namespace SceneGraph
         [SerializeField] BoxCollider2D boxCollider2D; public BoxCollider2D BoxCollider2D { get => boxCollider2D; set => boxCollider2D = value; }
         [SerializeField] TMP_Text textInteraction; public TMP_Text TextInteraction { get => textInteraction; set => textInteraction = value; }
 
+        void Awake()
+        {
+            // boxCollider2D = GetComponent<BoxCollider2D>();
+            // textInteraction = GetComponentInChildren<TMP_Text>();
+        }
+
         void Start()
         {
             boxCollider2D.enabled = true;
+            
             if(portalData.IsInteraction)
             {
                 textInteraction.enabled = false;
@@ -33,7 +40,7 @@ namespace SceneGraph
                 // check if this interaction portal
                 if(!portalData.IsInteraction)
                 {
-                    // SceneLoader.Instance.TransitionToScene(door, this.transform.position);
+                    SceneLoader.Instance.TransitionToScene(portalData, this.transform.position);
                 }
                 else
                 {
@@ -51,7 +58,7 @@ namespace SceneGraph
                 {
                     if(Input.GetKeyDown(KeyCode.E))
                     {
-                        // SceneLoader.Instance.TransitionInteraction(door);
+                        SceneLoader.Instance.TransitionInteraction(portalData);
                     }
                 }
             }    
