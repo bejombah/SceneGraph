@@ -365,6 +365,8 @@ namespace SceneGraph.Editor
                 AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Plugins/SceneGraph/Prefabs/CamSystem.prefab")
             );
 
+            sceneCollection.AddCoreScene(AssetDatabase.LoadAssetAtPath<SceneAsset>("Assets/Plugins/SceneGraph/Scenes/Core.unity"));
+
             AssetDatabase.SaveAssets();
         }
 

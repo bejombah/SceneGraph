@@ -37,5 +37,10 @@ namespace SceneGraph
             this.gridPrefab = gridPrefab;
             this.camSystemPrefab = camSystemPrefab;
         }
+
+        public void AddCoreScene(SceneAsset coreScene)
+        {
+            this.coreScene = coreScene;
+        }
     }
 }
